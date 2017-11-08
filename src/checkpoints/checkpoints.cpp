@@ -144,7 +144,12 @@ namespace cryptonote
       ADD_CHECKPOINT(0,     "48ca7cd3c8de5b6a4d53d2861fbdaedca141553559f9be9520068053cda8430b");
       return true;
     }
-
+	  //Halykcoin checkpoints
+	  ADD_CHECKPOINT(1,     "c432d69e6fc8528750bbfe47fc8e5b3cfa210be50e08f2ed98b96ba4cd183030");
+	  ADD_CHECKPOINT(10,    "84bc2959202ccb7633607f79998bf4cf3ce8db11f802f4dd12a606420f26f795");
+	  ADD_CHECKPOINT(100,   "b450aa4c939ae217d758c724ff152a0269b0b32f6c5b680bda64c281cd3f727d");
+	  ADD_CHECKPOINT(100,   "ecdaab80b933a1ea7a59f9937b977a5d2ac407e21898f237d5774a3378e0a0fa");
+	  
     return true;
   }
 
