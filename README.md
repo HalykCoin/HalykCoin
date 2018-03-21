@@ -19,7 +19,7 @@ Halykcoin based on Monero is a private, secure, untraceable, decentralised digit
 
 ## About this Project
 
-This is the core implementation of Monero. It is open source and completely free to use without restrictions, except for those specified in the license agreement below. There are no restrictions on anyone creating an alternative implementation of Monero that uses the protocol and network in a compatible manner.
+This is the core implementation of Halykcoin/Monero. It is open source and completely free to use without restrictions, except for those specified in the license agreement below. There are no restrictions on anyone creating an alternative implementation of Halykcoin/Monero that uses the protocol and network in a compatible manner.
 
 As with many development projects, the repository on Github is considered to be the "staging" area for the latest changes. Before changes are merged into that branch on the main repository, they are tested by individual developers in their own branches, submitted as a pull request, and then subsequently tested by contributors who focus on testing and code reviews. That having been said, the repository should be carefully considered before using it in a production environment, unless there is a patch in the repository for a particular show-stopping issue you are experiencing. It is generally a better idea to use a tagged release for stability.
 
@@ -86,9 +86,9 @@ invokes cmake commands as needed.
 
 * The resulting executables can be found in `build/release/bin`
 
-* Add `PATH="$PATH:$HOME/monero/build/release/bin"` to `.profile`
+* Add `PATH="$PATH:$HOME/halykcoin/build/release/bin"` to `.profile`
 
-* Run Halykcoin with `monerod --detach`
+* Run Halykcoin with `halykcoind --detach`
 
 * **Optional**: build and run the test suite to verify the binaries:
 
@@ -198,25 +198,25 @@ and its home is the data directory specified in the [example
 config](utils/conf/halykcoind.conf).
 
 If you're on Mac, you may need to add the `--max-concurrency 1` option to
-halykcoin-wallet-cli, and possibly monerod, if you get crashes refreshing.
+halykcoin-wallet-cli, and possibly halykcoind, if you get crashes refreshing.
 
 ## Using Tor
 
-While Monero isn't made to integrate with Tor, it can be used wrapped with torsocks, if you add --p2p-bind-ip 127.0.0.1 to the monerod command line. You also want to set DNS requests to go over TCP, so they'll be routed through Tor, by setting DNS_PUBLIC=tcp or use a particular DNS server with DNS_PUBLIC=tcp://a.b.c.d (default is 8.8.4.4, which is Google DNS). You may also disable IGD (UPnP port forwarding negotiation), which is pointless with Tor. To allow local connections from the wallet, you might have to add TORSOCKS_ALLOW_INBOUND=1, some OSes need it and some don't. Example:
+While Halykcoin/Monero isn't made to integrate with Tor, it can be used wrapped with torsocks, if you add --p2p-bind-ip 127.0.0.1 to the halykcoind command line. You also want to set DNS requests to go over TCP, so they'll be routed through Tor, by setting DNS_PUBLIC=tcp or use a particular DNS server with DNS_PUBLIC=tcp://a.b.c.d (default is 8.8.4.4, which is Google DNS). You may also disable IGD (UPnP port forwarding negotiation), which is pointless with Tor. To allow local connections from the wallet, you might have to add TORSOCKS_ALLOW_INBOUND=1, some OSes need it and some don't. Example:
 
-`DNS_PUBLIC=tcp torsocks monerod --p2p-bind-ip 127.0.0.1 --no-igd`
+`DNS_PUBLIC=tcp torsocks halykcoind --p2p-bind-ip 127.0.0.1 --no-igd`
 
 or:
 
-`DNS_PUBLIC=tcp TORSOCKS_ALLOW_INBOUND=1 torsocks monerod --p2p-bind-ip 127.0.0.1 --no-igd`
+`DNS_PUBLIC=tcp TORSOCKS_ALLOW_INBOUND=1 torsocks halykcoind --p2p-bind-ip 127.0.0.1 --no-igd`
 
 TAILS ships with a very restrictive set of firewall rules. Therefore, you need to add a rule to allow this connection too, in addition to telling torsocks to allow inbound connections. Full example:
 
 `sudo iptables -I OUTPUT 2 -p tcp -d 127.0.0.1 -m tcp --dport 18081 -j ACCEPT`
 
-`DNS_PUBLIC=tcp torsocks ./monerod --p2p-bind-ip 127.0.0.1 --no-igd --rpc-bind-ip 127.0.0.1 --data-dir /home/amnesia/Persistent/your/directory/to/the/blockchain`
+`DNS_PUBLIC=tcp torsocks ./halykcoind --p2p-bind-ip 127.0.0.1 --no-igd --rpc-bind-ip 127.0.0.1 --data-dir /home/amnesia/Persistent/your/directory/to/the/blockchain`
 
-`./monero-wallet-cli`
+`./halykcoind-wallet-cli`
 
 # Debugging
 
