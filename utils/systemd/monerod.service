@@ -9,10 +9,10 @@ WorkingDirectory=~
 RuntimeDirectory=monero
 
 Type=forking
-PIDFile=/run/monero/monerod.pid
+PIDFile=/run/halykcoind/halykcoind.pid
 
-ExecStart=/usr/bin/monerod --config-file /etc/monerod.conf \
-    --detach --pidfile /run/monero/monerod.pid
+ExecStart=/usr/bin/halykcoind --config-file /etc/halykcoind.conf \
+    --detach --pidfile /run/halykcoind/halykcoind.pid
 
 [Install]
 WantedBy=multi-user.target

@@ -410,7 +410,7 @@ and its home is the data directory specified in the [example
 config](utils/conf/monerod.conf).
 
 If you're on Mac, you may need to add the `--max-concurrency 1` option to
-monero-wallet-cli, and possibly monerod, if you get crashes refreshing.
+halykcoin-wallet-cli, and possibly monerod, if you get crashes refreshing.
 
 ## Internationalization
 
@@ -432,7 +432,7 @@ TAILS ships with a very restrictive set of firewall rules. Therefore, you need t
 
 `DNS_PUBLIC=tcp torsocks ./monerod --p2p-bind-ip 127.0.0.1 --no-igd --rpc-bind-ip 127.0.0.1 --data-dir /home/amnesia/Persistent/your/directory/to/the/blockchain`
 
-`./monero-wallet-cli`
+`./halykcoin-wallet-cli`
 
 # Debugging
 

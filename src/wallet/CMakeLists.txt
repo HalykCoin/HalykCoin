@@ -122,7 +122,7 @@ if (NOT BUILD_GUI_DEPS)
       ${EXTRA_LIBRARIES})
   set_property(TARGET wallet_rpc_server
     PROPERTY
-      OUTPUT_NAME "monero-wallet-rpc")
+      OUTPUT_NAME "halykcoin-wallet-rpc")
   install(TARGETS wallet_rpc_server DESTINATION bin)
 endif()
 
