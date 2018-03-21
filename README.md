@@ -1,6 +1,6 @@
 # Halykcoin
 
-Copyright (c) 2017-2018 The Monero Project.
+Copyright (c) 2017-2018 The Halykcoin Project.
 Portions Copyright (c) 2014-2017 The Monero Project.   
 Portions Copyright (c) 2012-2013 The Cryptonote developers.
 
@@ -14,7 +14,7 @@ Portions Copyright (c) 2012-2013 The Cryptonote developers.
 
 ## Introduction
 
-Halykcoin based on Monero is a private, secure, untraceable, decentralised digital currency. You are your bank, you control your funds, and nobody can trace your transfers unless you allow them to do so.
+Halykcoin based on Monero. Monero is a wonderful, private, secure, untraceable, decentralised digital currency. You are your bank, you control your funds, and nobody can trace your transfers unless you allow them to do so.
 
 
 ## About this Project
