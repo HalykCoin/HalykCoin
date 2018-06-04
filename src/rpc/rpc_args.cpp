@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The Monero Project
+// Copyright (c) 2014-2018, The Monero Project
 //
 // All rights reserved.
 //
@@ -30,13 +30,14 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/asio/ip/address.hpp>
+#include <boost/bind.hpp>
 #include "common/command_line.h"
 #include "common/i18n.h"
 
 namespace cryptonote
 {
   rpc_args::descriptors::descriptors()
-     : rpc_bind_ip({"rpc-bind-ip", rpc_args::tr("Specify ip to bind rpc server"), "127.0.0.1"})
+     : rpc_bind_ip({"rpc-bind-ip", rpc_args::tr("Specify IP to bind RPC server"), "127.0.0.1"})
      , rpc_login({"rpc-login", rpc_args::tr("Specify username[:password] required for RPC server"), "", true})
      , confirm_external_bind({"confirm-external-bind", rpc_args::tr("Confirm rpc-bind-ip value is NOT a loopback (local) IP")})
      , rpc_access_control_origins({"rpc-access-control-origins", rpc_args::tr("Specify a comma separated list of origins to allow cross origin resource sharing"), ""})
@@ -83,7 +84,9 @@ namespace cryptonote
 
     if (command_line::has_arg(vm, arg.rpc_login))
     {
-      config.login = tools::login::parse(command_line::get_arg(vm, arg.rpc_login), true, "RPC server password");
+      config.login = tools::login::parse(command_line::get_arg(vm, arg.rpc_login), true, [](bool verify) {
+        return tools::password_container::prompt(verify, "RPC server password");
+      });
       if (!config.login)
         return boost::none;
 

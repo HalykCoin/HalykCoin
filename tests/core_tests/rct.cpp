@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The Monero Project
+// Copyright (c) 2014-2018, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -30,7 +30,8 @@
 
 #include "ringct/rctSigs.h"
 #include "chaingen.h"
-#include "chaingen_tests_list.h"
+#include "rct.h"
+#include "device/device.hpp"
 
 using namespace epee;
 using namespace crypto;
@@ -132,10 +133,10 @@ bool gen_rct_tx_validation_base::generate_with(std::vector<test_event_entry>& ev
       CHECK_AND_ASSERT_MES(r, false, "Failed to generate key derivation");
       crypto::secret_key amount_key;
       crypto::derivation_to_scalar(derivation, o, amount_key);
-      if (rct_txes[n].rct_signatures.type == rct::RCTTypeSimple)
-        rct::decodeRctSimple(rct_txes[n].rct_signatures, rct::sk2rct(amount_key), o, rct_tx_masks[o+n*4]);
+      if (rct_txes[n].rct_signatures.type == rct::RCTTypeSimple || rct_txes[n].rct_signatures.type == rct::RCTTypeSimpleBulletproof)
+        rct::decodeRctSimple(rct_txes[n].rct_signatures, rct::sk2rct(amount_key), o, rct_tx_masks[o+n*4], hw::get_device("default"));
       else
-        rct::decodeRct(rct_txes[n].rct_signatures, rct::sk2rct(amount_key), o, rct_tx_masks[o+n*4]);
+        rct::decodeRct(rct_txes[n].rct_signatures, rct::sk2rct(amount_key), o, rct_tx_masks[o+n*4], hw::get_device("default"));
     }
 
     CHECK_AND_ASSERT_MES(generator.construct_block_manually(blk_txes[n], blk_last, miner_account,

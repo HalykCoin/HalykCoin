@@ -1,0 +1,13 @@
+# Target labels
+ generate_translations_header
+# Source files and their labels
+/home/oleg/Projects/halykcoin/build/release/CMakeFiles/generate_translations_header
+/home/oleg/Projects/halykcoin/build/release/CMakeFiles/generate_translations_header.rule
+/home/oleg/Projects/halykcoin/build/release/CMakeFiles/generate_translations_header-complete.rule
+/home/oleg/Projects/halykcoin/build/release/generate_translations_header-prefix/src/generate_translations_header-stamp/generate_translations_header-install.rule
+/home/oleg/Projects/halykcoin/build/release/generate_translations_header-prefix/src/generate_translations_header-stamp/generate_translations_header-mkdir.rule
+/home/oleg/Projects/halykcoin/build/release/generate_translations_header-prefix/src/generate_translations_header-stamp/generate_translations_header-download.rule
+/home/oleg/Projects/halykcoin/build/release/generate_translations_header-prefix/src/generate_translations_header-stamp/generate_translations_header-update.rule
+/home/oleg/Projects/halykcoin/build/release/generate_translations_header-prefix/src/generate_translations_header-stamp/generate_translations_header-patch.rule
+/home/oleg/Projects/halykcoin/build/release/generate_translations_header-prefix/src/generate_translations_header-stamp/generate_translations_header-configure.rule
+/home/oleg/Projects/halykcoin/build/release/generate_translations_header-prefix/src/generate_translations_header-stamp/generate_translations_header-build.rule

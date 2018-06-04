@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The Monero Project
+// Copyright (c) 2014-2018, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -31,7 +31,9 @@
 #include "gtest/gtest.h"
 #include "cryptonote_core/cryptonote_core.h"
 #include "p2p/net_node.h"
+#include "p2p/net_node.inl"
 #include "cryptonote_protocol/cryptonote_protocol_handler.h"
+#include "cryptonote_protocol/cryptonote_protocol_handler.inl"
 
 #define MAKE_IPV4_ADDRESS(a,b,c,d) epee::net_utils::ipv4_network_address{MAKE_IP(a,b,c,d),0}
 
@@ -68,7 +70,7 @@ public:
   uint64_t get_target_blockchain_height() const { return 1; }
   size_t get_block_sync_size(uint64_t height) const { return BLOCKS_SYNCHRONIZING_DEFAULT_COUNT; }
   virtual void on_transaction_relayed(const cryptonote::blobdata& tx) {}
-  bool get_testnet() const { return false; }
+  cryptonote::network_type get_nettype() const { return cryptonote::MAINNET; }
   bool get_pool_transaction(const crypto::hash& id, cryptonote::blobdata& tx_blob) const { return false; }
   bool pool_has_tx(const crypto::hash &txid) const { return false; }
   bool get_blocks(uint64_t start_offset, size_t count, std::list<std::pair<cryptonote::blobdata, cryptonote::block>>& blocks, std::list<cryptonote::blobdata>& txs) const { return false; }
@@ -79,6 +81,7 @@ public:
   cryptonote::difficulty_type get_block_cumulative_difficulty(uint64_t height) const { return 0; }
   bool fluffy_blocks_enabled() const { return false; }
   uint64_t prevalidate_block_hashes(uint64_t height, const std::list<crypto::hash> &hashes) { return 0; }
+  void stop() {}
 };
 
 typedef nodetool::node_server<cryptonote::t_cryptonote_protocol_handler<test_core>> Server;
@@ -184,3 +187,5 @@ TEST(ban, add)
   ASSERT_TRUE(t >= 4);
 }
 
+namespace nodetool { template class node_server<cryptonote::t_cryptonote_protocol_handler<test_core>>; }
+namespace cryptonote { template class t_cryptonote_protocol_handler<test_core>; }

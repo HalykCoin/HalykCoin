@@ -14,7 +14,10 @@
 //  http://muflihun.com
 //
 
+#define EASYLOGGING_CC
 #include "easylogging++.h"
+
+#include <unistd.h>
 
 #if defined(AUTO_INITIALIZE_EASYLOGGINGPP)
 INITIALIZE_EASYLOGGINGPP
@@ -35,7 +38,11 @@ static void abort(int status, const std::string& reason) {
   // Ignore msvc critical error dialog - break instead (on debug mode)
   _asm int 3
 #else
+#ifdef NDEBUG
+  ::_exit(1);
+#else
   ::abort();
+#endif
 #endif  // defined(ELPP_COMPILER_MSVC) && defined(_M_IX86) && defined(_DEBUG)
 }
 
@@ -1015,8 +1022,9 @@ const std::string OS::getBashOutput(const char* command) {
   char hBuff[4096];
   if (fgets(hBuff, sizeof(hBuff), proc) != nullptr) {
     pclose(proc);
-    if (hBuff[strlen(hBuff) - 1] == '\n') {
-      hBuff[strlen(hBuff) - 1] = '\0';
+    const size_t len = strlen(hBuff);
+    if (len > 0 && hBuff[len - 1] == '\n') {
+      hBuff[len- 1] = '\0';
     }
     return std::string(hBuff);
   }

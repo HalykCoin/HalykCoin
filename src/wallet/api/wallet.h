@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The Monero Project
+// Copyright (c) 2014-2018, The Monero Project
 //
 // All rights reserved.
 //
@@ -31,7 +31,7 @@
 #ifndef WALLET_IMPL_H
 #define WALLET_IMPL_H
 
-#include "wallet/wallet2_api.h"
+#include "wallet/api/wallet2_api.h"
 #include "wallet/wallet2.h"
 
 #include <string>
@@ -52,14 +52,25 @@ struct Wallet2CallbackImpl;
 class WalletImpl : public Wallet
 {
 public:
-    WalletImpl(bool testnet = false);
+    WalletImpl(NetworkType nettype = MAINNET);
     ~WalletImpl();
     bool create(const std::string &path, const std::string &password,
                 const std::string &language);
     bool createWatchOnly(const std::string &path, const std::string &password,
                             const std::string &language) const;
     bool open(const std::string &path, const std::string &password);
+    bool recover(const std::string &path,const std::string &password,
+                            const std::string &seed);
+    bool recoverFromKeysWithPassword(const std::string &path,
+                            const std::string &password,
+                            const std::string &language,
+                            const std::string &address_string,
+                            const std::string &viewkey_string,
+                            const std::string &spendkey_string = "");
+    // following two methods are deprecated since they create passwordless wallets
+    // use the two equivalent methods above
     bool recover(const std::string &path, const std::string &seed);
+    // deprecated: use recoverFromKeysWithPassword() instead
     bool recoverFromKeys(const std::string &path,
                             const std::string &language,
                             const std::string &address_string, 
@@ -104,7 +115,7 @@ public:
     void setRecoveringFromSeed(bool recoveringFromSeed);
     bool watchOnly() const;
     bool rescanSpent();
-    bool testnet() const {return m_wallet->testnet();}
+    NetworkType nettype() const {return static_cast<NetworkType>(m_wallet->nettype());}
     void hardForkInfo(uint8_t &version, uint64_t &earliest_height) const;
     bool useForkRules(uint8_t version, int64_t early_blocks) const;
 
@@ -137,6 +148,13 @@ public:
     virtual bool setUserNote(const std::string &txid, const std::string &note);
     virtual std::string getUserNote(const std::string &txid) const;
     virtual std::string getTxKey(const std::string &txid) const;
+    virtual bool checkTxKey(const std::string &txid, std::string tx_key, const std::string &address, uint64_t &received, bool &in_pool, uint64_t &confirmations);
+    virtual std::string getTxProof(const std::string &txid, const std::string &address, const std::string &message) const;
+    virtual bool checkTxProof(const std::string &txid, const std::string &address, const std::string &message, const std::string &signature, bool &good, uint64_t &received, bool &in_pool, uint64_t &confirmations);
+    virtual std::string getSpendProof(const std::string &txid, const std::string &message) const;
+    virtual bool checkSpendProof(const std::string &txid, const std::string &message, const std::string &signature, bool &good) const;
+    virtual std::string getReserveProof(bool all, uint32_t account_index, uint64_t amount, const std::string &message) const;
+    virtual bool checkReserveProof(const std::string &address, const std::string &message, const std::string &signature, bool &good, uint64_t &total, uint64_t &spent) const;
     virtual std::string signMessage(const std::string &message);
     virtual bool verifySignedMessage(const std::string &message, const std::string &address, const std::string &signature) const;
     virtual void startRefresh();
@@ -145,6 +163,14 @@ public:
     virtual std::string getDefaultDataDir() const;
     virtual bool lightWalletLogin(bool &isNewWallet) const;
     virtual bool lightWalletImportWalletRequest(std::string &payment_id, uint64_t &fee, bool &new_request, bool &request_fulfilled, std::string &payment_address, std::string &status);
+    virtual bool blackballOutputs(const std::vector<std::string> &pubkeys, bool add);
+    virtual bool unblackballOutput(const std::string &pubkey);
+    virtual bool getRing(const std::string &key_image, std::vector<uint64_t> &ring) const;
+    virtual bool getRings(const std::string &txid, std::vector<std::pair<std::string, std::vector<uint64_t>>> &rings) const;
+    virtual bool setRing(const std::string &key_image, const std::vector<uint64_t> &ring, bool relative);
+    virtual void segregatePreForkOutputs(bool segregate);
+    virtual void segregationHeight(uint64_t height);
+    virtual void keyReuseMitigation2(bool mitigation);
 
 private:
     void clearStatus() const;

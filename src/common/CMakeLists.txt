@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2017, The Monero Project
+# Copyright (c) 2014-2018, The Monero Project
 #
 # All rights reserved.
 #
@@ -74,7 +74,8 @@ monero_private_headers(common
 monero_add_library(common
   ${common_sources}
   ${common_headers}
-  ${common_private_headers})
+  ${common_private_headers}
+  DEPENDS generate_translations_header)
 target_link_libraries(common
   PUBLIC
     epee

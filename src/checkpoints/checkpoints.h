@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The Monero Project
+// Copyright (c) 2014-2018, The Monero Project
 //
 // All rights reserved.
 //
@@ -33,7 +33,7 @@
 #include <vector>
 #include "misc_log_ex.h"
 #include "crypto/hash.h"
-#include "serialization/keyvalue_serialization.h"
+#include "cryptonote_config.h"
 
 #define ADD_CHECKPOINT(h, hash)  CHECK_AND_ASSERT(add_checkpoint(h,  hash), false);
 #define JSON_HASH_FILE_NAME "checkpoints.json"
@@ -148,11 +148,11 @@ namespace cryptonote
 
     /**
      * @brief loads the default main chain checkpoints
-     * @param testnet whether to load testnet checkpoints or mainnet
+     * @param nettype network type
      *
      * @return true unless adding a checkpoint fails
      */
-    bool init_default_checkpoints(bool testnet);
+    bool init_default_checkpoints(network_type nettype);
 
     /**
      * @brief load new checkpoints
@@ -161,12 +161,12 @@ namespace cryptonote
      * (optionally) from DNS.
      *
      * @param json_hashfile_fullpath path to the json checkpoints file
-     * @param testnet whether to load testnet checkpoints or mainnet
+     * @param nettype network type
      * @param dns whether or not to load DNS checkpoints
      *
      * @return true if loading successful and no conflicts
      */
-    bool load_new_checkpoints(const std::string json_hashfile_fullpath, bool testnet=false, bool dns=true);
+    bool load_new_checkpoints(const std::string &json_hashfile_fullpath, network_type nettype=MAINNET, bool dns=true);
 
     /**
      * @brief load new checkpoints from json
@@ -175,44 +175,19 @@ namespace cryptonote
      *
      * @return true if loading successful and no conflicts
      */
-    bool load_checkpoints_from_json(const std::string json_hashfile_fullpath);
+    bool load_checkpoints_from_json(const std::string &json_hashfile_fullpath);
 
     /**
      * @brief load new checkpoints from DNS
      *
-     * @param testnet whether to load testnet checkpoints or mainnet
+     * @param nettype network type
      *
      * @return true if loading successful and no conflicts
      */
-    bool load_checkpoints_from_dns(bool testnet = false);
+    bool load_checkpoints_from_dns(network_type nettype = MAINNET);
 
   private:
-
-
-    /**
-     * @brief struct for loading a checkpoint from json
-     */
-  struct t_hashline
-  {
-    uint64_t height; //!< the height of the checkpoint
-    std::string hash; //!< the hash for the checkpoint
-        BEGIN_KV_SERIALIZE_MAP()
-          KV_SERIALIZE(height)
-          KV_SERIALIZE(hash)
-        END_KV_SERIALIZE_MAP()
-  };
-
-  /**
-   * @brief struct for loading many checkpoints from json
-   */
-  struct t_hash_json {
-    std::vector<t_hashline> hashlines; //!< the checkpoint lines from the file
-        BEGIN_KV_SERIALIZE_MAP()
-          KV_SERIALIZE(hashlines)
-        END_KV_SERIALIZE_MAP()
-  };
-
     std::map<uint64_t, crypto::hash> m_points; //!< the checkpoints container
-
   };
+
 }

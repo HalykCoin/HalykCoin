@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The Monero Project
+// Copyright (c) 2014-2018, The Monero Project
 //
 // All rights reserved.
 //
@@ -56,7 +56,7 @@ namespace Language
   class Lojban: public Base
   {
   public:
-    Lojban(): Base("Lojban", std::vector<std::string>({
+    Lojban(): Base("Lojban", "Lojban", std::vector<std::string>({
       "backi",
       "bacru",
       "badna",

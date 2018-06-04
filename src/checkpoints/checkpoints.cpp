@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The Monero Project
+// Copyright (c) 2014-2018, The Monero Project
 //
 // All rights reserved.
 //
@@ -36,15 +36,38 @@ using namespace epee;
 
 #include "common/dns_utils.h"
 #include "include_base_utils.h"
+#include "string_tools.h"
 #include "storages/portable_storage_template_helper.h" // epee json include
-#include <sstream>
-#include <random>
+#include "serialization/keyvalue_serialization.h"
 
 #undef MONERO_DEFAULT_LOG_CATEGORY
 #define MONERO_DEFAULT_LOG_CATEGORY "checkpoints"
 
 namespace cryptonote
 {
+  /**
+   * @brief struct for loading a checkpoint from json
+   */
+  struct t_hashline
+  {
+    uint64_t height; //!< the height of the checkpoint
+    std::string hash; //!< the hash for the checkpoint
+        BEGIN_KV_SERIALIZE_MAP()
+          KV_SERIALIZE(height)
+          KV_SERIALIZE(hash)
+        END_KV_SERIALIZE_MAP()
+  };
+
+  /**
+   * @brief struct for loading many checkpoints from json
+   */
+  struct t_hash_json {
+    std::vector<t_hashline> hashlines; //!< the checkpoint lines from the file
+        BEGIN_KV_SERIALIZE_MAP()
+          KV_SERIALIZE(hashlines)
+        END_KV_SERIALIZE_MAP()
+  };
+
   //---------------------------------------------------------------------------
   checkpoints::checkpoints()
   {
@@ -136,12 +159,18 @@ namespace cryptonote
     return true;
   }
 
-  bool checkpoints::init_default_checkpoints(bool testnet)
+  bool checkpoints::init_default_checkpoints(network_type nettype)
   {
-    if (testnet)
+    if (nettype == TESTNET)
     {
-      // just use the genesis block on testnet
       ADD_CHECKPOINT(0,     "48ca7cd3c8de5b6a4d53d2861fbdaedca141553559f9be9520068053cda8430b");
+      ADD_CHECKPOINT(1000000, "46b690b710a07ea051bc4a6b6842ac37be691089c0f7758cfeec4d5fc0b4a258");
+      return true;
+    }
+    if (nettype == STAGENET)
+    {
+      ADD_CHECKPOINT(0,       "76ee3cc98646292206cd3e86f74d88b4dcc1d937088645e9b0cbca84b7ce74eb");
+      ADD_CHECKPOINT(10000,   "1f8b0ce313f8b9ba9a46108bfd285c45ad7c2176871fd41c3a690d4830ce2fd5");
       return true;
     }
 	  //Halykcoin checkpoints
@@ -172,10 +201,16 @@ namespace cryptonote
 	  ADD_CHECKPOINT(130000,     "a09008741323cd3cbaddcb63b3a13e9f72188fdd11b3486c51c3080c71312545");
 	  ADD_CHECKPOINT(140000,     "25bbdb88cbb816a0112fa5db4162d6f83ee60fa9e3ce07c462e409a8d7d32ac3");
 
+        //Tets talk about split
+	  ADD_CHECKPOINT(275749,     "a78fdf312d6315bad43d2042d59abe7bebbae7ecc516dd152be3b43a9ba3fb9e");
+	  ADD_CHECKPOINT(275750,     "43b418b9acd3f34770e4b18ec5b3f6f0abd9a19ebabb8ec2482e4d15013f479c");
+	  ADD_CHECKPOINT(276481,     "a77aa1d17c6c95ccf39100c2ab001e1aef52e767e7060e4fcef2eade7a79b814");
+      ADD_CHECKPOINT(276482,     "198588cf76a3b8a0d594720cf1c0ffe0cfed065374aff63f5846ce4334036c38");
+
     return true;
   }
 
-  bool checkpoints::load_checkpoints_from_json(const std::string json_hashfile_fullpath)
+  bool checkpoints::load_checkpoints_from_json(const std::string &json_hashfile_fullpath)
   {
     boost::system::error_code errcode;
     if (! (boost::filesystem::exists(json_hashfile_fullpath, errcode)))
@@ -189,7 +224,11 @@ namespace cryptonote
     uint64_t prev_max_height = get_max_height();
     LOG_PRINT_L1("Hard-coded max checkpoint height is " << prev_max_height);
     t_hash_json hashes;
-    epee::serialization::load_t_from_json_file(hashes, json_hashfile_fullpath);
+    if (!epee::serialization::load_t_from_json_file(hashes, json_hashfile_fullpath))
+    {
+      MERROR("Error loading checkpoints from " << json_hashfile_fullpath);
+      return false;
+    }
     for (std::vector<t_hashline>::const_iterator it = hashes.hashlines.begin(); it != hashes.hashlines.end(); )
     {
       uint64_t height;
@@ -207,7 +246,7 @@ namespace cryptonote
     return true;
   }
 
-  bool checkpoints::load_checkpoints_from_dns(bool testnet)
+  bool checkpoints::load_checkpoints_from_dns(network_type nettype)
   {
     std::vector<std::string> records;
 
@@ -218,7 +257,13 @@ namespace cryptonote
     static const std::vector<std::string> testnet_dns_urls = { "testpoints.halykcoin.org" 
     };
 
-    if (!tools::dns_utils::load_txt_records_from_dns(records, testnet ? testnet_dns_urls : dns_urls))
+    static const std::vector<std::string> stagenet_dns_urls = { "stagenetpoints.moneropulse.se"
+                   , "stagenetpoints.halykcoin.org"
+                   , "stagenetpoints.halykcoin.net"
+                   , "stagenetpoints.halykcoin.co"
+    };
+
+    if (!tools::dns_utils::load_txt_records_from_dns(records, nettype == TESTNET ? testnet_dns_urls : nettype == STAGENET ? stagenet_dns_urls : dns_urls))
       return true; // why true ?
 
     for (const auto& record : records)
@@ -251,14 +296,14 @@ namespace cryptonote
     return true;
   }
 
-  bool checkpoints::load_new_checkpoints(const std::string json_hashfile_fullpath, bool testnet, bool dns)
+  bool checkpoints::load_new_checkpoints(const std::string &json_hashfile_fullpath, network_type nettype, bool dns)
   {
     bool result;
 
     result = load_checkpoints_from_json(json_hashfile_fullpath);
     if (dns)
     {
-      result &= load_checkpoints_from_dns(testnet);
+      result &= load_checkpoints_from_dns(nettype);
     }
 
     return result;

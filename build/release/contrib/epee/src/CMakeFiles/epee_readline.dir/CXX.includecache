@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../../contrib/epee/include/readline_buffer.h
+streambuf
+-
+sstream
+-
+vector
+-
+
+/home/oleg/Projects/halykcoin/contrib/epee/src/readline_buffer.cpp
+readline_buffer.h
+/home/oleg/Projects/halykcoin/contrib/epee/src/readline_buffer.h
+readline/readline.h
+-
+readline/history.h
+-
+unistd.h
+-
+iostream
+-
+boost/thread.hpp
+-
+boost/algorithm/string.hpp
+-
+

@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The Monero Project
+// Copyright (c) 2014-2018, The Monero Project
 //
 // All rights reserved.
 //
@@ -32,6 +32,7 @@
 #include <fstream>
 
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 #include "misc_log_ex.h"
 #include "bootstrap_file.h"
 #include "bootstrap_serialization.h"
@@ -52,6 +53,7 @@ bool opt_batch   = true;
 bool opt_verify  = true; // use add_new_block, which does verification before calling add_block
 bool opt_resume  = true;
 bool opt_testnet = true;
+bool opt_stagenet = true;
 
 // number of blocks per batch transaction
 // adjustable through command-line argument according to available RAM
@@ -256,7 +258,7 @@ int import_from_file(cryptonote::core& core, const std::string& import_file_path
 
   seek_height = start_height;
   BootstrapFile bootstrap;
-  streampos pos;
+  std::streampos pos;
   // BootstrapFile bootstrap(import_file_path);
   uint64_t total_source_blocks = bootstrap.count_blocks(import_file_path, pos, seek_height);
   MINFO("bootstrap file last block number: " << total_source_blocks-1 << " (zero-based height)  total blocks: " << total_source_blocks);
@@ -458,7 +460,7 @@ int import_from_file(cryptonote::core& core, const std::string& import_file_path
 
           // tx number 1: coinbase tx
           // tx number 2 onwards: archived_txs
-          for (transaction tx : archived_txs)
+          for (const transaction &tx : archived_txs)
           {
             // add blocks with verification.
             // for Blockchain and blockchain_storage add_new_block().
@@ -573,8 +575,6 @@ int main(int argc, char* argv[])
 
   tools::on_startup();
 
-  boost::filesystem::path default_data_path {tools::get_default_data_dir()};
-  boost::filesystem::path default_testnet_data_path {default_data_path / "testnet"};
   std::string import_file_path;
 
   po::options_description desc_cmd_only("Command line options");
@@ -585,11 +585,6 @@ int main(int argc, char* argv[])
   const command_line::arg_descriptor<uint64_t> arg_batch_size  = {"batch-size", "", db_batch_size};
   const command_line::arg_descriptor<uint64_t> arg_pop_blocks  = {"pop-blocks", "Remove blocks from end of blockchain", num_blocks};
   const command_line::arg_descriptor<bool>        arg_drop_hf  = {"drop-hard-fork", "Drop hard fork subdbs", false};
-  const command_line::arg_descriptor<bool>     arg_testnet_on  = {
-    "testnet"
-      , "Run on testnet."
-      , false
-  };
   const command_line::arg_descriptor<bool>     arg_count_blocks = {
     "count-blocks"
       , "Count blocks in bootstrap file and exit"
@@ -598,8 +593,8 @@ int main(int argc, char* argv[])
   const command_line::arg_descriptor<std::string> arg_database = {
     "database", available_dbs.c_str(), default_db_type
   };
-  const command_line::arg_descriptor<bool> arg_verify =  {"verify",
-    "Verify blocks and transactions during import", true};
+  const command_line::arg_descriptor<bool> arg_verify =  {"guard-against-pwnage",
+    "Verify blocks and transactions during import (only disable if you exported the file yourself)", true};
   const command_line::arg_descriptor<bool> arg_batch  =  {"batch",
     "Batch transactions for faster import", true};
   const command_line::arg_descriptor<bool> arg_resume =  {"resume",
@@ -674,9 +669,14 @@ int main(int argc, char* argv[])
     }
   }
 
-  opt_testnet = command_line::get_arg(vm, arg_testnet_on);
-  auto data_dir_arg = opt_testnet ? command_line::arg_testnet_data_dir : command_line::arg_data_dir;
-  m_config_folder = command_line::get_arg(vm, data_dir_arg);
+  opt_testnet = command_line::get_arg(vm, cryptonote::arg_testnet_on);
+  opt_stagenet = command_line::get_arg(vm, cryptonote::arg_stagenet_on);
+  if (opt_testnet && opt_stagenet)
+  {
+    std::cerr << "Error: Can't specify more than one of --testnet and --stagenet" << ENDL;
+    return 1;
+  }
+  m_config_folder = command_line::get_arg(vm, cryptonote::arg_data_dir);
   db_arg_str = command_line::get_arg(vm, arg_database);
 
   mlog_configure(mlog_get_default_log_path("monero-blockchain-import.log"), true);
@@ -733,7 +733,7 @@ int main(int argc, char* argv[])
     MINFO("batch:   " << std::boolalpha << opt_batch << std::noboolalpha);
   }
   MINFO("resume:  " << std::boolalpha << opt_resume  << std::noboolalpha);
-  MINFO("testnet: " << std::boolalpha << opt_testnet << std::noboolalpha);
+  MINFO("nettype: " << (opt_testnet ? "testnet" : opt_stagenet ? "stagenet" : "mainnet"));
 
   MINFO("bootstrap file path: " << import_file_path);
   MINFO("database path:       " << m_config_folder);

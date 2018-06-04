@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2017, The Monero Project
+// Copyright (c) 2016-2018, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -95,6 +95,7 @@ namespace rpc
     uint64_t last_relayed_time;
     bool relayed;
     bool do_not_relay;
+    bool double_spend_seen;
   };
 
   typedef std::unordered_map<crypto::key_image, std::vector<crypto::hash> > key_images_with_tx_hashes;
@@ -177,7 +178,9 @@ namespace rpc
     uint64_t incoming_connections_count;
     uint64_t white_peerlist_size;
     uint64_t grey_peerlist_size;
+    bool mainnet;
     bool testnet;
+    bool stagenet;
     crypto::hash top_block_hash;
     uint64_t cumulative_difficulty;
     uint64_t block_size_limit;

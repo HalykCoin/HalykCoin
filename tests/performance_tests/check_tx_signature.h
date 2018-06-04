@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The Monero Project
+// Copyright (c) 2014-2018, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -80,7 +80,7 @@ public:
   {
     if (rct)
     {
-      if (m_tx.rct_signatures.type == rct::RCTTypeFull)
+      if (m_tx.rct_signatures.type == rct::RCTTypeFull || m_tx.rct_signatures.type == rct::RCTTypeFullBulletproof)
         return rct::verRct(m_tx.rct_signatures);
       else
         return rct::verRctSimple(m_tx.rct_signatures);

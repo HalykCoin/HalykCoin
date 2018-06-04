@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The Monero Project
+// Copyright (c) 2014-2018, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -29,7 +29,7 @@
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #include "chaingen.h"
-#include "chaingen_tests_list.h"
+#include "block_validation.h"
 
 using namespace epee;
 using namespace cryptonote;
@@ -38,7 +38,7 @@ namespace
 {
   bool lift_up_difficulty(std::vector<test_event_entry>& events, std::vector<uint64_t>& timestamps,
                           std::vector<difficulty_type>& cummulative_difficulties, test_generator& generator,
-                          size_t new_block_count, const block blk_last, const account_base& miner_account)
+                          size_t new_block_count, const block &blk_last, const account_base& miner_account)
   {
     difficulty_type commulative_diffic = cummulative_difficulties.empty() ? 0 : cummulative_difficulties.back();
     block blk_prev = blk_last;

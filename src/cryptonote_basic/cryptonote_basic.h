@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The Monero Project
+// Copyright (c) 2014-2018, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -36,7 +36,6 @@
 #include <cstring>  // memcmp
 #include <sstream>
 #include <atomic>
-#include "serialization/serialization.h"
 #include "serialization/variant.h"
 #include "serialization/vector.h"
 #include "serialization/binary_archive.h"
@@ -50,6 +49,7 @@
 #include "misc_language.h"
 #include "tx_extra.h"
 #include "ringct/rctTypes.h"
+#include "device/device.hpp"
 
 namespace cryptonote
 {
@@ -259,7 +259,7 @@ namespace cryptonote
             ar.tag("rctsig_prunable");
             ar.begin_object();
             r = rct_signatures.p.serialize_rctsig_prunable(ar, rct_signatures.type, vin.size(), vout.size(),
-                vin[0].type() == typeid(txin_to_key) ? boost::get<txin_to_key>(vin[0]).key_offsets.size() - 1 : 0);
+                vin.size() > 0 && vin[0].type() == typeid(txin_to_key) ? boost::get<txin_to_key>(vin[0]).key_offsets.size() - 1 : 0);
             if (!r || !ar.stream().good()) return false;
             ar.end_object();
           }
@@ -429,10 +429,10 @@ namespace cryptonote
     crypto::public_key pub;
     crypto::secret_key sec;
 
-    static inline keypair generate()
+    static inline keypair generate(hw::device &hwdev)
     {
       keypair k;
-      generate_keys(k.pub, k.sec);
+      hwdev.generate_keys(k.pub, k.sec);
       return k;
     }
   };

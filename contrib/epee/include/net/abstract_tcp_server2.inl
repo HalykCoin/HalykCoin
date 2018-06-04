@@ -286,7 +286,7 @@ PRAGMA_WARNING_DISABLE_VS(4355)
     
     {
 			CRITICAL_REGION_LOCAL(	epee::net_utils::network_throttle_manager::network_throttle_manager::m_lock_get_global_throttle_in );
-			epee::net_utils::network_throttle_manager::network_throttle_manager::get_global_throttle_in().handle_trafic_exact(bytes_transferred * 1024);
+			epee::net_utils::network_throttle_manager::network_throttle_manager::get_global_throttle_in().handle_trafic_exact(bytes_transferred);
 		}
 
 		double delay=0; // will be calculated - how much we should sleep to obey speed limit etc
@@ -297,7 +297,7 @@ PRAGMA_WARNING_DISABLE_VS(4355)
 			{
 				{ //_scope_dbg1("CRITICAL_REGION_LOCAL");
 					CRITICAL_REGION_LOCAL(	epee::net_utils::network_throttle_manager::m_lock_get_global_throttle_in );
-					delay = epee::net_utils::network_throttle_manager::get_global_throttle_in().get_sleep_time_after_tick( bytes_transferred ); // decission from global throttle
+					delay = epee::net_utils::network_throttle_manager::get_global_throttle_in().get_sleep_time_after_tick( bytes_transferred );
 				}
 				
 				delay *= 0.5;
@@ -482,9 +482,7 @@ PRAGMA_WARNING_DISABLE_VS(4355)
     //some data should be wrote to stream
     //request complete
     
-		if (speed_limit_is_enabled()) {
-			sleep_before_packet(cb, 1, 1);
-		}
+    // No sleeping here; sleeping is done once and for all in "handle_write"
 
     m_send_que_lock.lock(); // *** critical ***
     epee::misc_utils::auto_scope_leave_caller scope_exit_handler = epee::misc_utils::create_scope_leave_handler([&](){m_send_que_lock.unlock();});
@@ -607,6 +605,7 @@ PRAGMA_WARNING_DISABLE_VS(4355)
     }
     logger_handle_net_write(cb);
 
+                // The single sleeping that is needed for correctly handling "out" speed throttling
 		if (speed_limit_is_enabled()) {
 			sleep_before_packet(cb, 1, 1);
 		}
@@ -736,7 +735,17 @@ PRAGMA_WARNING_DISABLE_VS(4355)
       boost::asio::placeholders::error));
 
     return true;
-    CATCH_ENTRY_L0("boosted_tcp_server<t_protocol_handler>::init_server", false);
+    }
+    catch (const std::exception &e)
+    {
+      MFATAL("Error starting server: " << e.what());
+      return false;
+    }
+    catch (...)
+    {
+      MFATAL("Error starting server");
+      return false;
+    }
   }
   //-----------------------------------------------------------------------------
 PUSH_WARNINGS
@@ -926,6 +935,9 @@ POP_WARNINGS
         boost::bind(&boosted_tcp_server<t_protocol_handler>::handle_accept, this,
         boost::asio::placeholders::error));
 
+      boost::asio::socket_base::keep_alive opt(true);
+      conn->socket().set_option(opt);
+
       conn->start(true, 1 < m_threads_count);
       conn->save_dbg_log();
     }else
@@ -1046,7 +1058,7 @@ POP_WARNINGS
   }
   //---------------------------------------------------------------------------------
   template<class t_protocol_handler> template<class t_callback>
-  bool boosted_tcp_server<t_protocol_handler>::connect_async(const std::string& adr, const std::string& port, uint32_t conn_timeout, t_callback cb, const std::string& bind_ip)
+  bool boosted_tcp_server<t_protocol_handler>::connect_async(const std::string& adr, const std::string& port, uint32_t conn_timeout, const t_callback &cb, const std::string& bind_ip)
   {
     TRY_ENTRY();    
     connection_ptr new_connection_l(new connection<t_protocol_handler>(io_service_, m_config, m_sock_count, m_sock_number, m_pfilter, m_connection_type) );

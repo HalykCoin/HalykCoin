@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The Monero Project
+// Copyright (c) 2014-2018, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -38,6 +38,11 @@
 #include <functional>
 #include <memory>
 #include <string>
+
+#ifdef _WIN32
+#include "windows.h"
+#include "misc_log_ex.h"
+#endif
 
 #include "crypto/hash.h"
 
@@ -148,9 +153,14 @@ namespace tools
       }
       return r;
 #else
-      /* Only blocks SIGINT and SIGTERM */
-      signal(SIGINT, posix_handler);
+      static struct sigaction sa;
+      memset(&sa, 0, sizeof(struct sigaction));
+      sa.sa_handler = posix_handler;
+      sa.sa_flags = 0;
+      /* Only blocks SIGINT, SIGTERM and SIGPIPE */
+      sigaction(SIGINT, &sa, NULL);
       signal(SIGTERM, posix_handler);
+      signal(SIGPIPE, SIG_IGN);
       m_handler = t;
       return true;
 #endif

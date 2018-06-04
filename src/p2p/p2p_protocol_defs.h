@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017, The Monero Project
+// Copyright (c) 2014-2018, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -34,6 +34,8 @@
 #include "serialization/keyvalue_serialization.h"
 #include "net/net_utils_base.h"
 #include "misc_language.h"
+#include "string_tools.h"
+#include "time_helper.h"
 #include "cryptonote_config.h"
 #ifdef ALLOW_DEBUG_COMMANDS
 #include "crypto/crypto.h"
@@ -129,13 +131,15 @@ namespace nodetool
   struct network_config
   {
     BEGIN_KV_SERIALIZE_MAP()
-      KV_SERIALIZE(connections_count)
+      KV_SERIALIZE(max_out_connection_count)
+      KV_SERIALIZE(max_in_connection_count)
       KV_SERIALIZE(handshake_interval)
       KV_SERIALIZE(packet_max_size)
       KV_SERIALIZE(config_id)
     END_KV_SERIALIZE_MAP()
 
-    uint32_t connections_count;
+    uint32_t max_out_connection_count;
+    uint32_t max_in_connection_count;
     uint32_t connection_timeout;
     uint32_t ping_connection_timeout;
     uint32_t handshake_interval;
